@@ -1,0 +1,103 @@
+config:
+  target: 'https://localhost:8443'
+  plugins:
+    expect: {}
+  phases:
+    - duration: 40
+      arrivalRate: 5
+  http:
+    pool: 8
+  ensure:
+    p95: 100
+    maxErrorRate: 0
+  tls:
+    rejectUnauthorized: false
+  payload:
+    - path: "books.csv"
+      fields:
+        - "title"
+        - "description"
+      order: "sequence"
+scenarios:
+  - name: "Escenario 1: Consulta del primer Libro​"
+    weight: 7
+    flow:
+    - get:
+        url: "/api/books/"
+        headers:
+          Content-Type: application/json
+        capture: 
+          json: "$[0].id"
+          as: "id"
+        expect:
+          - statusCode: 200
+          - contentType: json
+    - get:
+        url: "/api/books/{{ id }}"
+        expect:
+          - statusCode: 200
+          - contentType: json
+  - name: "Escenario 2: Creación de un Libro​"
+    weight: 2
+    flow:
+    - post:
+        url: "/api/logIn"
+        auth:
+          user: "user"
+          pass: "pass"
+        expect:
+          - statusCode: 200
+    - post:
+        url: "/api/books/"
+        json:
+          title: "{{ title }}"
+          description: "{{ description }}"
+        capture: 
+          json: "$.id"
+          as: "id"
+        expect:
+          - statusCode: 201
+    - get:
+        url: "/api/books/{{ id }}"
+        expect:
+          - statusCode: 200
+          - contentType: json
+  - name: "Escenario 3: Borrado de un Libro​​"
+    weight: 1
+    flow:
+    - post:
+        url: "/api/logIn"
+        auth:
+          user: "admin"
+          pass: "pass"
+        expect:
+          - statusCode: 200
+    - post:
+        url: "/api/books/"
+        json:
+          title: "{{ title }}"
+          description: "{{ description }}"
+        capture: 
+          json: "$.id"
+          as: "id"
+        expect:
+          - statusCode: 201
+          - contentType: json
+    - get:
+        url: "/api/books/{{ id }}"
+        expect:
+          - statusCode: 200
+          - contentType: json
+    - delete:
+        url: "/api/books/{{ id }}"
+        expect:
+          - statusCode: 204
+    - get:
+        url: "/api/books/{{ id }}"
+        expect:
+          - statusCode: 404
+
+
+    
+
+  
