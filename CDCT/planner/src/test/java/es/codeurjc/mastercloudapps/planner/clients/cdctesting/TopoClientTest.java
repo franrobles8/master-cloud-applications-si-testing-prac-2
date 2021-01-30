@@ -12,7 +12,7 @@ import es.codeurjc.mastercloudapps.planner.models.LandscapeResponse;
 
 @SpringBootTest
 @AutoConfigureStubRunner(
-    ids = {"es.codeurjc.mastercloudapps.reactive:toposervice:+:8085"},
+    ids = {"froblesc-pd.parla:toposervice:+:8085"},
     stubsMode = StubsMode.LOCAL
 )
 public class TopoClientTest {
